@@ -1,0 +1,40 @@
+# The Azure Blob Storage container name - This needs to be created before hand
+container_name: "mysupercoolcontainernameinazureblobstorage"
+
+# The file, in the bucket, which stores the state
+key: "terraform.tfstate"
+
+# The Azure Storage Account Name
+storage_account_name: "XXX"
+resource_group_name: "XXX"
+
+# Everything will be placed in [dns_subdomain].[dns_suffix]
+dns_subdomain: "azure"
+
+#
+dns_suffix: "dashaun.cloud"
+
+# This is a label for your resource group and for your terraform environment
+env_name: "azure-dev"
+
+# You can switch to your own fork - but this will work with the upstream provided versions by default
+git_uri: "git@github.com:pivotal-cf/terraforming-azure.git"
+
+
+# Which directory to use from the git_uri repository - upstream provides terraforming-pks and terraforming-control-plane also
+repository_directory: "terraforming-pas"
+
+# Latest release at ths time
+git_branch: "v0.40.0"
+
+# Where do you want your platform deployeda
+location: "centralus"
+
+# URL of the ops manager image you want to use
+ops_manager_image_uri: "https://......."
+
+# Your Azure credentials
+subscription_id: "XXX"
+tenant_id: "XXX"
+client_id: "XXX"
+client_secret: "XXX"
