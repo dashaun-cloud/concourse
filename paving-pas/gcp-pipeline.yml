@@ -1,0 +1,56 @@
+resource_types:
+  - name: terraform
+    type: docker-image
+    source:
+      repository: ljfranklin/terraform-resource
+      tag: latest
+
+resources:
+  - name: paving-pas
+    type: git
+    source:
+      branch: master
+      uri: git@github.com:pivotal/paving-pas.git
+      private_key: ((git_ssh_key))
+  - name: terraform
+    type: terraform
+    source:
+      env_name: ((env_name))
+      backend_type: gcs
+      backend_config:
+        bucket: terraform-state-dashaun-cloud
+      delete_on_failure: true
+      vars:
+        project: ((project))
+        env_name: ((env_name))
+        region: ((region))
+        global_lb: ((global_lb))
+        infrastructure_cidr: ((infrastructure_cidr))
+        pas_cidr: ((pas_cidr))
+        services_cidr: ((services_cidr))
+        zones: ((zones))
+        service_account_key: ((service_account_key))
+        dns_suffix: ((dns_suffix))
+        opsman_image_url: ((opsman_image_url))
+
+jobs:
+  - name: terraform-apply
+    plan:
+    - get: paving-pas
+      trigger: false
+    - put: terraform
+      params:
+        env_name: ((env_name))
+        terraform_source: paving-pas/gcp/examples/open-network
+
+  - name: terraform-destroy
+    plan:
+    - get: paving-pas
+      trigger: false
+    - put: terraform
+      get_params:
+        action: destroy
+      params:
+        action: destroy
+        env_name: ((env_name))
+        terraform_source: paving-pas/gcp/examples/open-network
