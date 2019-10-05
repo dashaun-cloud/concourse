@@ -66,4 +66,16 @@ jobs:
       - put: terraform
         params:
           env_name: ((env_name))
-          terraform_source: paving-pks/platform-automation-pre/gcp/examples/open-network
+          terraform_source: platformautomation-setup/gcp
+
+  - name: destroy-bucket
+    plan:
+      - get: controlplane-pipelines
+        trigger: false
+      - put: terraform
+        get_params:
+          action: destroy
+        params:
+          action: destroy
+          env_name: ((env_name))
+          terraform_source: platformautomation-setup/gcp
