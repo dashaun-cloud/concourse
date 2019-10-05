@@ -1,0 +1,11 @@
+env_name: pks
+region: us-east4
+infrastructure_cidr: "10.150.0.0/26"
+pks_cidr: "10.150.10.0/24"
+pks_services_cidr: "10.150.11.0/24"
+zones:
+  - a
+  - b
+  - c
+dns_suffix: gcp.dashaun.cloud
+opsman_image_url: ""

@@ -6,11 +6,17 @@ resource_types:
       tag: latest
 
 resources:
-  - name: paving-pas
+  - name: paving-pks
     type: git
     source:
       branch: master
-      uri: git@github.com:pivotal/paving-pas.git
+      uri: git@github.com:pivotal/paving-pks.git
+      private_key: ((git_ssh_key))
+  - name: controlplane-pipelines
+    type: git
+    source:
+      branch: master
+      uri: git@github.com:dashaun-cloud/controlplane-pipelines.git
       private_key: ((git_ssh_key))
   - name: terraform
     type: terraform
@@ -24,10 +30,9 @@ resources:
         project: ((project))
         env_name: ((env_name))
         region: ((region))
-        global_lb: ((global_lb))
         infrastructure_cidr: ((infrastructure_cidr))
-        pas_cidr: ((pas_cidr))
-        services_cidr: ((services_cidr))
+        pks_cidr: ((pks_cidr))
+        pks_services_cidr: ((pks_services_cidr))
         zones: ((zones))
         dns_suffix: ((dns_suffix))
         opsman_image_url: ((opsman_image_url))
@@ -35,16 +40,16 @@ resources:
 jobs:
   - name: terraform-apply
     plan:
-    - get: paving-pas
+    - get: paving-pks
       trigger: false
     - put: terraform
       params:
         env_name: ((env_name))
-        terraform_source: paving-pas/gcp/examples/open-network
+        terraform_source: paving-pks/gcp/examples/open-network
 
   - name: terraform-destroy
     plan:
-    - get: paving-pas
+    - get: paving-pks
       trigger: false
     - put: terraform
       get_params:
@@ -52,4 +57,13 @@ jobs:
       params:
         action: destroy
         env_name: ((env_name))
-        terraform_source: paving-pas/gcp/examples/open-network
+        terraform_source: paving-pks/gcp/examples/open-network
+
+  - name: create-bucket
+    plan:
+      - get: controlplane-pipelines
+        trigger: false
+      - put: terraform
+        params:
+          env_name: ((env_name))
+          terraform_source: paving-pks/platform-automation-pre/gcp/examples/open-network
