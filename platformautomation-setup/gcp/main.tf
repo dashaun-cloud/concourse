@@ -10,6 +10,10 @@ terraform {
   required_version = ">= 0.12.0"
 }
 
-//resource "google_storage_bucket" "platform-automation" {
-//  name     = "platform-automation-bucket"
-//}
+resource "google_storage_bucket" "platform-automation" {
+  name     = "platform-automation-bucket-dashaun-cloud"
+}
+
+resource "google_storage_bucket" "foundation-code" {
+  name     = "foundation-code-bucket-dashaun-cloud"
+}
