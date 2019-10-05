@@ -12,12 +12,6 @@ resources:
       branch: master
       uri: git@github.com:pivotal/paving-pks.git
       private_key: ((git_ssh_key))
-  - name: controlplane-pipelines
-    type: git
-    source:
-      branch: master
-      uri: git@github.com:dashaun-cloud/controlplane-pipelines.git
-      private_key: ((git_ssh_key))
   - name: terraform
     type: terraform
     source:
@@ -36,41 +30,21 @@ resources:
         zones: ((zones))
         dns_suffix: ((dns_suffix))
         opsman_image_url: ((opsman_image_url))
+        service_account_key: ((service_account_key))
 
 jobs:
   - name: terraform-apply
     plan:
-    - get: paving-pks
-      trigger: false
-    - put: terraform
-      params:
-        env_name: ((env_name))
-        terraform_source: paving-pks/gcp/examples/open-network
-
-  - name: terraform-destroy
-    plan:
-    - get: paving-pks
-      trigger: false
-    - put: terraform
-      get_params:
-        action: destroy
-      params:
-        action: destroy
-        env_name: ((env_name))
-        terraform_source: paving-pks/gcp/examples/open-network
-
-  - name: create-bucket
-    plan:
-      - get: controlplane-pipelines
+      - get: paving-pks
         trigger: false
       - put: terraform
         params:
           env_name: ((env_name))
-          terraform_source: platformautomation-setup/gcp
+          terraform_source: paving-pks/gcp/examples/open-network
 
-  - name: destroy-bucket
+  - name: terraform-destroy
     plan:
-      - get: controlplane-pipelines
+      - get: paving-pks
         trigger: false
       - put: terraform
         get_params:
@@ -78,4 +52,4 @@ jobs:
         params:
           action: destroy
           env_name: ((env_name))
-          terraform_source: platformautomation-setup/gcp
+          terraform_source: paving-pks/gcp/examples/open-network
