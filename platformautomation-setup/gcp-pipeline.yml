@@ -1,0 +1,57 @@
+resource_types:
+  - name: terraform
+    type: docker-image
+    source:
+      repository: ljfranklin/terraform-resource
+      tag: latest
+
+resources:
+  - name: controlplane-pipelines
+    type: git
+    source:
+      branch: master
+      uri: git@github.com:dashaun-cloud/controlplane-pipelines.git
+      private_key: ((git_ssh_key))
+  - name: terraform
+    type: terraform
+    source:
+      env_name: ((env_name))
+      backend_type: gcs
+      backend_config:
+        bucket: terraform-state-dashaun-cloud
+        prefix: ((env_name))
+      delete_on_failure: true
+      vars:
+        project: ((project))
+        region: ((region))
+        service_account_key: ((service_account_key))
+
+jobs:
+  - name: terraform-plan
+    plan:
+      - get: controlplane-pipelines
+        trigger: true
+      - put: terraform
+        params:
+          env_name: ((env_name))
+          plan_only: true
+          terraform_source: controlplane-pipelines/platformautomation-setup/gcp/
+  - name: terraform-apply
+    plan:
+      - get: controlplane-pipelines
+        trigger: false
+      - put: terraform
+        params:
+          env_name: ((env_name))
+          terraform_source: controlplane-pipelines/platformautomation-setup/gcp/
+  - name: terraform-destroy
+    plan:
+      - get: controlplane-pipelines
+        trigger: false
+      - put: terraform
+        get_params:
+          action: destroy
+        params:
+          action: destroy
+          env_name: ((env_name))
+          terraform_source: controlplane-pipelines/platformautomation-setup/gcp
