@@ -51,7 +51,6 @@ jobs:
         params:
           env_name: ((env_name))
           terraform_source: paving-pks/gcp/examples/open-network
-
   - name: terraform-destroy
     plan:
       - get: paving-pks
