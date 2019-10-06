@@ -19,6 +19,7 @@ resources:
       backend_type: gcs
       backend_config:
         bucket: terraform-state-dashaun-cloud
+        prefix: ((env_name))
       delete_on_failure: true
       vars:
         project: ((project))
@@ -33,6 +34,15 @@ resources:
         service_account_key: ((service_account_key))
 
 jobs:
+  - name: terraform-plan
+    plan:
+      - get: paving-pks
+        trigger: false
+      - put: terraform
+        params:
+          env_name: ((env_name))
+          plan_only: true
+          terraform_source: paving-pks/gcp/examples/open-network
   - name: terraform-apply
     plan:
       - get: paving-pks

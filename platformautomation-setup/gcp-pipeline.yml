@@ -30,7 +30,7 @@ jobs:
   - name: terraform-plan
     plan:
       - get: controlplane-pipelines
-        trigger: true
+        trigger: false
       - put: terraform
         params:
           env_name: ((env_name))
