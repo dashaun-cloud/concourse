@@ -13,7 +13,6 @@ variable "region" {
 
 variable "platform-automation-bucket" {
   type = string
-  default = "platform-automation-bucket-dashaun-cloud"
 }
 
 variable "foundation-code-bucket" {
