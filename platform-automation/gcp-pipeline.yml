@@ -35,7 +35,7 @@ jobs:
         params:
           env_name: ((env_name))
           plan_only: true
-          terraform_source: controlplane-pipelines/platformautomation-setup/gcp/
+          terraform_source: controlplane-pipelines/platform-automation/gcp/
   - name: terraform-apply
     plan:
       - get: controlplane-pipelines
@@ -43,7 +43,7 @@ jobs:
       - put: terraform
         params:
           env_name: ((env_name))
-          terraform_source: controlplane-pipelines/platformautomation-setup/gcp/
+          terraform_source: controlplane-pipelines/platform-automation/gcp/
   - name: terraform-destroy
     plan:
       - get: controlplane-pipelines
@@ -54,4 +54,4 @@ jobs:
         params:
           action: destroy
           env_name: ((env_name))
-          terraform_source: controlplane-pipelines/platformautomation-setup/gcp
+          terraform_source: controlplane-pipelines/platform-automation/gcp

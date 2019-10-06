@@ -12,8 +12,10 @@ terraform {
 
 resource "google_storage_bucket" "platform-automation" {
   name     = "platform-automation-bucket-dashaun-cloud"
+  storage_class = "REGIONAL"
 }
 
 resource "google_storage_bucket" "foundation-code" {
   name     = "foundation-code-bucket-dashaun-cloud"
+  storage_class = "REGIONAL"
 }
