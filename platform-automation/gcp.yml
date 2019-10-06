@@ -1,2 +1,3 @@
 env_name: platform-automation
-region: us-central1
+credhub-server: https://10.128.0.6:8844
+opsman-url: https://opsman.pks.gcp.dashaun.cloud
