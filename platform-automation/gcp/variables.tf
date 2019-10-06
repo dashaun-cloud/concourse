@@ -8,7 +8,6 @@ variable "service_account_key" {
 
 variable "region" {
   type = string
-  default = "us-central1"
 }
 
 variable "platform-automation-bucket" {
