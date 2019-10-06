@@ -5,8 +5,17 @@ resource_types:
     source:
       repository: ljfranklin/terraform-resource
       tag: latest
-
+  - name: pivnet
+    type: docker-image
+    source:
+      repository: pivotalcf/pivnet-resource
+      tag: latest-final
 resources:
+  - name: platform-automation
+    type: pivnet
+    source:
+      product_slug: platform-automation
+      api_token: ((pivnet_token))
   - name: controlplane-pipelines
     type: git
     source:
@@ -57,3 +66,18 @@ jobs:
           action: destroy
           env_name: ((env_name))
           terraform_source: controlplane-pipelines/platform-automation/gcp
+  - name: update-image-and-task
+    plan:
+      - get: platform-automation-image
+        resource: platform-automation
+        params:
+          globs: ["*image*.tgz"]
+          unpack: true
+      - get: platform-automation-tasks
+        resource: platform-automation
+        params:
+          globs: ["*tasks*.zip"]
+          unpack: true
+      - task: test
+        image: platform-automation-image
+        file: platform-automation-tasks/tasks/test.yml
