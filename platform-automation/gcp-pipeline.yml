@@ -66,7 +66,7 @@ jobs:
           action: destroy
           env_name: ((env_name))
           terraform_source: controlplane-pipelines/platform-automation/gcp
-  - name: update-image-and-task
+  - name: platform-automation-test
     plan:
       - get: platform-automation-image
         resource: platform-automation
@@ -81,3 +81,70 @@ jobs:
       - task: test
         image: platform-automation-image
         file: platform-automation-tasks/tasks/test.yml
+  - name: platform-automation-to-bucket
+    serial: true
+    plan:
+    - in_parallel:
+      - get: platform-automation-image
+        resource: platform-automation
+        params:
+          globs: ["*image*.tgz"]
+          unpack: false
+      - get: platform-automation-tasks
+        resource: platform-automation
+        params:
+          globs: ["*tasks*.zip"]
+          unpack: false
+      - get: terraform
+    - do:
+      - task: show-image
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ubuntu}
+          inputs:
+            - name: platform-automation-image
+          run:
+            path: find
+            args: [.]
+      - task: show-tasks
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ubuntu}
+          inputs:
+            - name: platform-automation-tasks
+          run:
+            path: find
+            args: [.]
+      - task: show-buckets
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ubuntu}
+          inputs:
+            - name: terraform
+          run:
+            path: find
+            args: [.]
+      - task: show-buckets
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: cfinfrastructure/deployment}
+          inputs:
+            - name: terraform
+          run:
+            path: sh
+            args:
+              - -exec
+              - |
+                metadata="${PWD}/terraform/metadata"
+                echo $(yq -r . < "${metadata}")
+                bucket_name=$(yq -r .platform_automation_url < "${metadata}")
+                echo "Bucket Name: "
+                echo "${bucket_name}"
