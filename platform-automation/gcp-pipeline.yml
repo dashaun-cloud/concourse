@@ -97,40 +97,7 @@ jobs:
           unpack: false
       - get: terraform
     - do:
-      - task: show-image
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: ubuntu}
-          inputs:
-            - name: platform-automation-image
-          run:
-            path: find
-            args: [.]
-      - task: show-tasks
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: ubuntu}
-          inputs:
-            - name: platform-automation-tasks
-          run:
-            path: find
-            args: [.]
-      - task: show-buckets
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: ubuntu}
-          inputs:
-            - name: terraform
-          run:
-            path: find
-            args: [.]
-      - task: show-buckets
+      - task: upload-platform-automation-to-bucket
         config:
           platform: linux
           image_resource:
@@ -138,6 +105,8 @@ jobs:
             source: {repository: cfinfrastructure/deployment}
           inputs:
             - name: terraform
+            - name: platform-automation-tasks
+            - name: platform-automation-image
           run:
             path: sh
             args:
@@ -146,5 +115,5 @@ jobs:
                 metadata="${PWD}/terraform/metadata"
                 echo $(yq -r . < "${metadata}")
                 bucket_name=$(yq -r .platform_automation_url < "${metadata}")
-                echo "Bucket Name: "
-                echo "${bucket_name}"
+                gsutil cp ${PWD}/platform-automation-tasks/platform-automation-tasks-*.zip "${bucket_name}"
+                gsutil cp ${PWD}/platform-automation-image/platform-automation-image-*.tgz "${bucket_name}"

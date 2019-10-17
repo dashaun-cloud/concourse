@@ -16,5 +16,4 @@ variable "platform-automation-bucket" {
 
 variable "foundation-code-bucket" {
   type = string
-  default = "foundation-code-bucket-dashaun-cloud"
 }
