@@ -13,9 +13,11 @@ terraform {
 resource "google_storage_bucket" "platform-automation" {
   name     = var.platform-automation-bucket
   location = var.region
+  force_destroy = "true"
 }
 
 resource "google_storage_bucket" "foundation-code" {
   name     = var.foundation-code-bucket
   location = var.region
+  force_destroy = "true"
 }
