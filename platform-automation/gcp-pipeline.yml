@@ -36,6 +36,7 @@ resources:
         region: ((region))
         service_account_key: ((service_account_key))
         platform-automation-bucket: ((platform-automation-bucket))
+        foundation-code-bucket: ((foundation-code-bucket))
 
 jobs:
   - name: terraform-plan
