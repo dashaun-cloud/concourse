@@ -1,3 +1,5 @@
+# fly -t cp set-pipeline -c gcp-pipeline.yml -p paving-pks -l gcp.yml -n
+---
 resource_types:
   - name: terraform
     type: docker-image
@@ -6,6 +8,12 @@ resource_types:
       tag: latest
 
 resources:
+  - name: controlplane-overrides
+    type: git
+    source:
+      branch: master
+      uri: git@github.com:dashaun-cloud/controlplane-pipelines
+      private_key: ((git_ssh_key))
   - name: paving-pks
     type: git
     source:
@@ -36,6 +44,8 @@ resources:
 jobs:
   - name: terraform-plan
     plan:
+      - get: controlplane-overrides
+        trigger: false
       - get: paving-pks
         trigger: false
       - put: terraform

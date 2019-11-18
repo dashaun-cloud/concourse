@@ -1,0 +1,6 @@
+env_name: pks
+container_name: terraform-state
+key: terraform.tfstate
+storage_account_name: tfstatetfstate
+resource_group_name: terraform-state
+ops_manager_image_uri: ""

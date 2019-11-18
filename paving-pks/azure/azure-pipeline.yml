@@ -1,0 +1,74 @@
+# fly -t cp set-pipeline -c azure-pipeline.yml -p paving-pks -l azure.yml -n
+---
+resource_types:
+  - name: terraform
+    type: docker-image
+    source:
+      repository: ljfranklin/terraform-resource
+      tag: latest
+
+resources:
+  - name: controlplane-overrides
+    type: git
+    source:
+      branch: master
+      uri: git@github.com:dashaun-cloud/controlplane-pipelines
+      private_key: ((git_ssh_key))
+  - name: paving-pks
+    type: git
+    source:
+      branch: master
+      uri: git@github.com:pivotal/paving-pks.git
+      private_key: ((git_ssh_key))
+  - name: terraform
+    type: terraform
+    source:
+      env_name: ((env_name))
+      backend_type: azurerm
+      backend_config:
+        container_name: ((container_name))
+        key: ((key))
+        storage_account_name: ((storage_account_name))
+        resource_group_name: ((resource_group_name))
+        access_key: ((access_key))
+      delete_on_failure: true
+      vars:
+        subscription_id: ((subscription_id))
+        client_id: ((client_id))
+        client_secret: ((client_secret))
+        tenant_id: ((tenant_id))
+        env_name: ((env_name))
+        location: ((location))
+        ops_manager_image_uri: ((ops_manager_image_uri))
+
+jobs:
+  - name: terraform-plan
+    plan:
+      - get: controlplane-overrides
+        trigger: false
+      - get: paving-pks
+        trigger: false
+      - put: terraform
+        params:
+          env_name: ((env_name))
+          plan_only: true
+          terraform_source: paving-pks/azure/examples/open-network
+  - name: terraform-apply
+    plan:
+      - get: paving-pks
+        trigger: false
+      - put: terraform
+        params:
+          env_name: ((env_name))
+          terraform_source: paving-pks/azure/examples/open-network
+  - name: terraform-destroy
+    plan:
+      - get: paving-pks
+        trigger: false
+      - put: terraform
+        get_params:
+          action: destroy
+        params:
+          action: destroy
+          env_name: ((env_name))
+          terraform_source: paving-pks/azure/examples/open-network
