@@ -48,11 +48,13 @@ jobs:
     plan:
       - get: paving-pas
         trigger: false
+      - get: controlplane-overrides
+        trigger: false
       - put: terraform
         params:
           env_name: ((env_name))
-          override_files:
-            - controlplane-pipelines/paving-pas/gcp/overrides
+          module_override_files:
+            - controlplane-overrides/paving-pas/gcp/overrides/jumpbox_override.tf
           plan_only: true
           terraform_source: paving-pas/gcp/examples/open-network
   - name: terraform-apply
