@@ -28,6 +28,7 @@ resources:
       backend_config:
         bucket: terraform-state-dashaun-cloud
         prefix: ((env_name))
+        credentials: ((gcp_credentials_json))
       delete_on_failure: true
       vars:
         project: ((project))
@@ -39,7 +40,7 @@ resources:
         zones: ((zones))
         dns_suffix: ((dns_suffix))
         opsman_image_url: ((opsman_image_url))
-        service_account_key: ((service_account_key))
+        service_account_key: ((gcp_credentials_json))
 
 jobs:
   - name: terraform-plan

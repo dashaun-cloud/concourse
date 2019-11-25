@@ -1,3 +1,5 @@
+# fly -t cp set-pipeline -c gcp-pipeline.yml -p us-central1 -l gcp-us-central1.yml -n
+---
 resource_types:
   - name: terraform
     type: docker-image
@@ -6,6 +8,12 @@ resource_types:
       tag: latest
 
 resources:
+  - name: controlplane-overrides
+    type: git
+    source:
+      branch: master
+      uri: git@github.com:dashaun-cloud/controlplane-pipelines
+      private_key: ((git_ssh_key))
   - name: paving-pas
     type: git
     source:
@@ -19,6 +27,8 @@ resources:
       backend_type: gcs
       backend_config:
         bucket: terraform-state-dashaun-cloud
+        prefix: ((env_name))
+        credentials: ((gcp_credentials_json))
       delete_on_failure: true
       vars:
         project: ((project))
@@ -31,8 +41,20 @@ resources:
         zones: ((zones))
         dns_suffix: ((dns_suffix))
         opsman_image_url: ((opsman_image_url))
+        service_account_key: ((gcp_credentials_json))
 
 jobs:
+  - name: terraform-plan
+    plan:
+      - get: paving-pas
+        trigger: false
+      - put: terraform
+        params:
+          env_name: ((env_name))
+          override_files:
+            - controlplane-pipelines/paving-pas/gcp/overrides
+          plan_only: true
+          terraform_source: paving-pas/gcp/examples/open-network
   - name: terraform-apply
     plan:
     - get: paving-pas
@@ -41,7 +63,6 @@ jobs:
       params:
         env_name: ((env_name))
         terraform_source: paving-pas/gcp/examples/open-network
-
   - name: terraform-destroy
     plan:
     - get: paving-pas

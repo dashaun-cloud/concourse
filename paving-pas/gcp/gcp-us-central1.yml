@@ -1,0 +1,12 @@
+env_name: pas1
+region: us-central1
+global_lb: 0
+infrastructure_cidr: "10.128.0.0/26"
+pas_cidr: "10.128.4.0/24"
+services_cidr: "10.128.8.0/24"
+zones:
+  - a
+  - b
+  - c
+dns_suffix: gcp.dashaun.cloud
+opsman_image_url: ""
