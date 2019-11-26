@@ -1,4 +1,4 @@
-env_name: pas1
+env_name: us-central1
 region: us-central1
 global_lb: 0
 infrastructure_cidr: "10.128.0.0/26"

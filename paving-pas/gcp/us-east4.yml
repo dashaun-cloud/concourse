@@ -1,4 +1,4 @@
-env_name: pas2
+env_name: us-east4
 region: us-east4
 global_lb: 0
 infrastructure_cidr: "10.150.0.0/26"

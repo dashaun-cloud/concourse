@@ -1,4 +1,4 @@
-# fly -t cp set-pipeline -c gcp-pipeline.yml -p us-central1 -l gcp-us-central1.yml -n
+# fly -t cp set-pipeline -c gcp-pipeline.yml -p us-central1-gcp -l us-central1.yml -n
 ---
 resource_types:
   - name: terraform
@@ -46,28 +46,36 @@ resources:
 jobs:
   - name: terraform-plan
     plan:
-      - get: paving-pas
-        trigger: false
-      - get: controlplane-overrides
-        trigger: false
-      - put: terraform
-        params:
-          env_name: ((env_name))
-          module_override_files:
-            - controlplane-overrides/paving-pas/gcp/overrides/jumpbox_override.tf
-          plan_only: true
-          terraform_source: paving-pas/gcp/examples/open-network
-  - name: terraform-apply
-    plan:
     - get: paving-pas
+      trigger: false
+    - get: controlplane-overrides
       trigger: false
     - put: terraform
       params:
         env_name: ((env_name))
+        module_override_files:
+        - src: controlplane-overrides/paving-pas/gcp/overrides/jumpbox_override.tf
+          dst: paving-pas/gcp/modules/jumpbox
+        plan_only: true
+        terraform_source: paving-pas/gcp/examples/open-network
+  - name: terraform-apply
+    plan:
+    - get: paving-pas
+      trigger: false
+    - get: controlplane-overrides
+      trigger: false
+    - put: terraform
+      params:
+        env_name: ((env_name))
+        module_override_files:
+        - src: controlplane-overrides/paving-pas/gcp/overrides/jumpbox_override.tf
+          dst: paving-pas/gcp/modules/jumpbox
         terraform_source: paving-pas/gcp/examples/open-network
   - name: terraform-destroy
     plan:
     - get: paving-pas
+      trigger: false
+    - get: controlplane-overrides
       trigger: false
     - put: terraform
       get_params:
@@ -75,4 +83,7 @@ jobs:
       params:
         action: destroy
         env_name: ((env_name))
+        module_override_files:
+          - src: controlplane-overrides/paving-pas/gcp/overrides/jumpbox_override.tf
+            dst: paving-pas/gcp/modules/jumpbox
         terraform_source: paving-pas/gcp/examples/open-network
