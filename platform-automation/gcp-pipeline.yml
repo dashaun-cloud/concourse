@@ -1,148 +1,113 @@
 # fly -t cp set-pipeline -c gcp-pipeline.yml -p pipeline-automation-buckets -l us-central1.yml -n
 ---
 resource_types:
-  - name: google-cloud-storage
-    type: docker-image
-    source:
-      repository: frodenas/gcs-resource
-  - name: terraform
-    type: docker-image
-    source:
-      repository: ljfranklin/terraform-resource
-      tag: latest
-  - name: pivnet
-    type: docker-image
-    source:
-      repository: pivotalcf/pivnet-resource
-      tag: latest-final
+- name: google-cloud-storage
+  type: docker-image
+  source:
+    repository: frodenas/gcs-resource
+- name: terraform
+  type: docker-image
+  source:
+    repository: ljfranklin/terraform-resource
+    tag: latest
+- name: pivnet
+  type: docker-image
+  source:
+    repository: pivotalcf/pivnet-resource
+    tag: latest-final
 resources:
-  - name: platform-automation-tasks
-    type: gcs
-    source:
-      regexp: platform-automation-tasks-(.*).zip
-      bucket: ((project))-((region))-((env_name))
-      json_key: |
-        ((service_account_key))
-  - name: platform-automation-image
-    type: gcs
-    source:
-      regexp: platform-automation-image-(.*).tgz
-      bucket: ((project))-((region))-((env_name))
-      json_key: |
-        ((service_account_key))
-  - name: platform-automation
-    type: pivnet
-    source:
-      product_slug: platform-automation
-      api_token: ((pivnet_token))
-  - name: controlplane-pipelines
-    type: git
-    source:
-      branch: master
-      uri: git@github.com:dashaun-cloud/controlplane-pipelines.git
-      private_key: ((git_ssh_key))
-  - name: terraform
-    type: terraform
-    source:
-      env_name: ((env_name))
-      backend_type: gcs
-      backend_config:
-        bucket: terraform-state-dashaun-cloud
-        prefix: ((env_name))
-      delete_on_failure: true
-      vars:
-        project: ((project))
-        region: ((region))
-        service_account_key: ((service_account_key))
+- name: platform-automation-tasks
+  type: google-cloud-storage
+  source:
+    regexp: platform-automation-tasks-(.*).zip
+    bucket: ((project))-((region))-((env_name))
+    json_key: |
+      ((gcp_credentials_json))
+- name: platform-automation-image
+  type: google-cloud-storage
+  source:
+    regexp: platform-automation-image-(.*).tgz
+    bucket: ((project))-((region))-((env_name))
+    json_key: |
+      ((gcp_credentials_json))
+- name: platform-automation
+  type: pivnet
+  source:
+    product_slug: platform-automation
+    api_token: ((pivnet_token))
+- name: controlplane-pipelines
+  type: git
+  source:
+    branch: master
+    uri: git@github.com:dashaun-cloud/controlplane-pipelines.git
+    private_key: ((git_ssh_key))
+- name: terraform
+  type: terraform
+  source:
+    env_name: ((env_name))
+    backend_type: gcs
+    backend_config:
+      bucket: terraform-state-dashaun-cloud
+      prefix: ((env_name))
+      credentials: ((gcp_credentials_json))
+    delete_on_failure: true
+    vars:
+      project: ((project))
+      region: ((region))
+      service_account_key: ((gcp_credentials_json))
 
 jobs:
-  - name: terraform-plan
-    plan:
-      - get: controlplane-pipelines
-        trigger: false
-      - put: terraform
-        params:
-          env_name: ((env_name))
-          plan_only: true
-          terraform_source: controlplane-pipelines/platform-automation/gcp/
-  - name: terraform-apply
-    plan:
-      - get: controlplane-pipelines
-        trigger: false
-      - put: terraform
-        params:
-          env_name: ((env_name))
-          terraform_source: controlplane-pipelines/platform-automation/gcp/
-  - name: terraform-destroy
-    plan:
-      - get: controlplane-pipelines
-        trigger: false
-      - put: terraform
-        get_params:
-          action: destroy
-        params:
-          action: destroy
-          env_name: ((env_name))
-          terraform_source: controlplane-pipelines/platform-automation/gcp
-  - name: platform-automation-test
-    plan:
-      - get: platform-automation-image
-        resource: platform-automation
-        params:
-          globs: ["*image*.tgz"]
-          unpack: true
-      - get: platform-automation-tasks
-        resource: platform-automation
-        params:
-          globs: ["*tasks*.zip"]
-          unpack: true
-      - task: test
-        image: platform-automation-image
-        file: platform-automation-tasks/tasks/test.yml
-  - name: platform-automation-to-bucket
-    serial: true
-    plan:
-    - in_parallel:
-      - get: platform-automation-image
-        resource: platform-automation
-        params:
-          globs: ["*image*.tgz"]
-          unpack: false
-      - get: platform-automation-tasks
-        resource: platform-automation
-        params:
-          globs: ["*tasks*.zip"]
-          unpack: false
-      - get: terraform
-    - do:
-      - task: upload-platform-automation-to-bucket
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: cfinfrastructure/deployment}
-          inputs:
-            - name: terraform
-            - name: platform-automation-tasks
-            - name: platform-automation-image
-          run:
-            path: sh
-            args:
-              - -exec
-              - |
-                metadata="${PWD}/terraform/metadata"
-                echo $(yq -r . < "${metadata}")
-                bucket_name=$(yq -r .platform_automation_url < "${metadata}")
-                gsutil cp ${PWD}/platform-automation-tasks/platform-automation-tasks-*.zip "${bucket_name}"
-                gsutil cp ${PWD}/platform-automation-image/platform-automation-image-*.tgz "${bucket_name}"
-  - name: fetch-platform-automation
-    plan:
-      - get: platform-automation
-        trigger: true
-      - in_parallel:
-          - put: platform-automation-tasks
-            params:
-              file: platform-automation-pivnet/*tasks*.zip
-          - put: platform-automation-image
-            params:
-              file: platform-automation-pivnet/*image*.tgz
+- name: terraform-plan
+  plan:
+  - get: controlplane-pipelines
+    trigger: false
+  - put: terraform
+    params:
+      env_name: ((env_name))
+      plan_only: true
+      terraform_source: controlplane-pipelines/platform-automation/gcp/
+- name: terraform-apply
+  plan:
+  - get: controlplane-pipelines
+    trigger: false
+  - put: terraform
+    params:
+      env_name: ((env_name))
+      terraform_source: controlplane-pipelines/platform-automation/gcp/
+- name: terraform-destroy
+  plan:
+  - get: controlplane-pipelines
+    trigger: false
+  - put: terraform
+    get_params:
+      action: destroy
+    params:
+      action: destroy
+      env_name: ((env_name))
+      terraform_source: controlplane-pipelines/platform-automation/gcp
+#- name: platform-automation-test
+#  plan:
+#  - get: platform-automation-image
+#    resource: platform-automation-image
+#    params:
+#      globs: ["*image*.tgz"]
+#      unpack: true
+#  - get: platform-automation-tasks
+#    resource: platform-automation-tasks
+#    params:
+#      globs: ["*tasks*.zip"]
+#      unpack: true
+#  - task: test
+#    image: platform-automation-image
+#    file: platform-automation-tasks/tasks/test.yml
+- name: fetch-platform-automation
+  plan:
+  - get: platform-automation
+    trigger: true
+  - in_parallel:
+    - put: platform-automation-tasks
+      params:
+        file: platform-automation/*tasks*.zip
+    - put: platform-automation-image
+      params:
+        file: platform-automation/*image*.tgz
