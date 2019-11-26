@@ -10,14 +10,8 @@ terraform {
   required_version = ">= 0.12.0"
 }
 
-resource "google_storage_bucket" "platform-automation" {
-  name     = var.platform-automation-bucket
-  location = var.region
-  force_destroy = "true"
-}
-
-resource "google_storage_bucket" "foundation-code" {
-  name     = var.foundation-code-bucket
+resource "google_storage_bucket" "platform-automation-bucket" {
+  name     = "${var.project}-${var.region}-${var.env_name}"
   location = var.region
   force_destroy = "true"
 }
