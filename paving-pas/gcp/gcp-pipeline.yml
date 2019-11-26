@@ -1,4 +1,5 @@
 # fly -t cp set-pipeline -c gcp-pipeline.yml -p us-central1-gcp -l us-central1.yml -n
+# fly -t cp set-pipeline -c gcp-pipeline.yml -p us-east4-gcp -l us-east4.yml -n
 ---
 resource_types:
   - name: terraform
@@ -84,6 +85,8 @@ jobs:
         action: destroy
         env_name: ((env_name))
         module_override_files:
-          - src: controlplane-overrides/paving-pas/gcp/overrides/jumpbox_override.tf
-            dst: paving-pas/gcp/modules/jumpbox
+        - src: controlplane-overrides/paving-pas/gcp/overrides/jumpbox_override.tf
+          dst: paving-pas/gcp/modules/jumpbox
+        - src: controlplane-overrides/paving-pas/gcp/overrides/storage_override.tf
+          dst: paving-pas/gcp/modules/pas
         terraform_source: paving-pas/gcp/examples/open-network
