@@ -10,3 +10,8 @@ zones:
   - c
 dns_suffix: gcp.dashaun.cloud
 opsman_image_url: ""
+
+# Credhub values required:
+# project
+# git_ssh_key
+# gcp_credentials_json

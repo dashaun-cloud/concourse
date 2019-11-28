@@ -1,4 +1,8 @@
 env_name: platform-automation
-credhub-server: https://10.128.0.6:8844
-opsman-url: https://opsman.pks.gcp.dashaun.cloud
 region: us-central1
+
+# Credhub values required:
+# project
+# git_ssh_key
+# gcp_credentials_json
+# pivnet_token

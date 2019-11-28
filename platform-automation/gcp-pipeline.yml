@@ -1,4 +1,4 @@
-# fly -t cp set-pipeline -c gcp-pipeline.yml -p pipeline-automation-buckets -l us-central1.yml -n
+# fly -t cp set-pipeline -c gcp-pipeline.yml -p pipeline-automation -l us-central1.yml -n
 ---
 resource_types:
 - name: google-cloud-storage
@@ -85,25 +85,10 @@ jobs:
       action: destroy
       env_name: ((env_name))
       terraform_source: controlplane-pipelines/platform-automation/gcp
-#- name: platform-automation-test
-#  plan:
-#  - get: platform-automation-image
-#    resource: platform-automation-image
-#    params:
-#      globs: ["*image*.tgz"]
-#      unpack: true
-#  - get: platform-automation-tasks
-#    resource: platform-automation-tasks
-#    params:
-#      globs: ["*tasks*.zip"]
-#      unpack: true
-#  - task: test
-#    image: platform-automation-image
-#    file: platform-automation-tasks/tasks/test.yml
 - name: fetch-platform-automation
   plan:
   - get: platform-automation
-    trigger: true
+    trigger: false
   - in_parallel:
     - put: platform-automation-tasks
       params:
