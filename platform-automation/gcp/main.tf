@@ -12,7 +12,6 @@ terraform {
 
 resource "google_storage_bucket" "platform-automation-bucket" {
   name     = "${var.project}-${var.region}-${var.env_name}"
-  location = var.region
   force_destroy = "true"
   storage_class = "MULTI_REGIONAL"
 }
