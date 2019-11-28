@@ -1,4 +1,4 @@
-# fly -t cp set-pipeline -c gcp-pipeline.yml -p pipeline-automation -l us-central1.yml -n
+# fly -t cp set-pipeline -c gcp-pipeline.yml -p platform-automation -l us-central1.yml -n
 ---
 resource_types:
 - name: google-cloud-storage
