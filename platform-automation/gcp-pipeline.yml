@@ -53,7 +53,6 @@ resources:
     delete_on_failure: true
     vars:
       project: ((project))
-      region: ((region))
       service_account_key: ((gcp_credentials_json))
 
 jobs:

@@ -1,5 +1,4 @@
 env_name: platform-automation
-region: us-central1
 
 # Credhub values required:
 # project
