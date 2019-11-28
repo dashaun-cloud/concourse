@@ -20,14 +20,14 @@ resources:
   type: google-cloud-storage
   source:
     regexp: platform-automation-tasks-(.*).zip
-    bucket: ((project))-((region))-((env_name))
+    bucket: ((project))-((env_name))
     json_key: |
       ((gcp_credentials_json))
 - name: platform-automation-image
   type: google-cloud-storage
   source:
     regexp: platform-automation-image-(.*).tgz
-    bucket: ((project))-((region))-((env_name))
+    bucket: ((project))-((env_name))
     json_key: |
       ((gcp_credentials_json))
 - name: platform-automation
