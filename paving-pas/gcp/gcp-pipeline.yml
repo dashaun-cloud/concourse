@@ -1,5 +1,7 @@
+# fly -t cp login -n main
 # fly -t cp set-pipeline -c gcp-pipeline.yml -p us-central1-gcp -l us-central1.yml -n
 # fly -t cp set-pipeline -c gcp-pipeline.yml -p us-east4-gcp -l us-east4.yml -n
+# fly -t cp set-pipeline -c gcp-pipeline.yml -p us-west1-gcp -l us-west1.yml -n
 ---
 resource_types:
   - name: terraform

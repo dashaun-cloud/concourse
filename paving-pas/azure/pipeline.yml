@@ -1,0 +1,68 @@
+# fly -t cp set-pipeline -c pipeline.yml -p azure-centralus -l centralus-vars.yml -n
+# fly -t cp set-pipeline -c pipeline.yml -p us-east4-gcp -l us-east4.yml -n
+---
+resource_types:
+  - name: terraform
+    type: docker-image
+    source:
+      repository: ljfranklin/terraform-resource
+      tag: latest
+resources:
+  - name: paving-pas
+    type: git
+    source:
+      branch: master
+      uri: git@github.com:pivotal/paving-pas.git
+      private_key: ((git_ssh_key))
+  - name: terraform
+    type: terraform
+    source:
+      env_name: ((env_name))
+      backend_type: azurerm
+      backend_config:
+        container_name: ((azure_terraform_container_name))
+        key: ((env_name))
+        storage_account_name: ((azure_terraform_storage_account_name))
+        resource_group_name: ((azure_terraform_resource_group_name))
+        access_key: ((azure_access_key))
+      delete_on_failure: false
+      vars:
+        cf_storage_account_name: ((azure_terraform_storage_account_name))
+        env_name: ((env_name))
+        location: ((location))
+        subscription_id: ((azure_subscription_id))
+        tenant_id: ((azure_tenant_id))
+        client_id: ((azure_client_id))
+        client_secret: ((azure_client_secret))
+        dns_subdomain: ((env_name))
+        dns_suffix: ((dns_suffix))
+        ops_manager_image_uri: ((ops_manager_image_uri))
+
+jobs:
+  - name: terraform-plan
+    plan:
+    - get: paving-pas
+      trigger: false
+    - put: terraform
+      params:
+        env_name: ((env_name))
+        terraform_source: paving-pas/azure/examples/open-network
+  - name: terraform-apply
+    plan:
+    - get: paving-pas
+      trigger: false
+    - put: terraform
+      params:
+        env_name: ((env_name))
+        terraform_source: paving-pas/azure/examples/open-network
+  - name: terraform-destroy
+    plan:
+    - get: paving-pas
+      trigger: false
+    - put: terraform
+      get_params:
+        action: destroy
+      params:
+        action: destroy
+        env_name: ((env_name))
+        terraform_source: paving-pas/azure/examples/open-network

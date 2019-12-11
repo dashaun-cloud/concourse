@@ -1,4 +1,4 @@
-env_name: pks1
+env_name: us-central1
 region: us-central1
 infrastructure_cidr: "10.128.1.0/26"
 pks_cidr: "10.128.10.0/24"

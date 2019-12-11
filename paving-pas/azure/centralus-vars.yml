@@ -1,0 +1,4 @@
+env_name: centralus
+location: centralus
+dns_suffix: azure.dashaun.cloud
+ops_manager_image_uri: ""
