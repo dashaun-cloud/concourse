@@ -12,5 +12,4 @@ terraform {
 resource "aws_s3_bucket" "platform-automation-bucket" {
   bucket     = "${var.region}-${var.env_name}"
   force_destroy = "true"
-  storage_class = "MULTI_REGIONAL"
 }
