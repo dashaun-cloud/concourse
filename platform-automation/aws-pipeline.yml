@@ -1,0 +1,218 @@
+# fly -t cp set-pipeline -c gcp-pipeline.yml -p platform-automation -l us-central1.yml -n
+---
+resource_types:
+- name: terraform
+  type: docker-image
+  source:
+    repository: ljfranklin/terraform-resource
+    tag: latest
+- name: pivnet
+  type: docker-image
+  source:
+    repository: pivotalcf/pivnet-resource
+    tag: latest-final
+resources:
+- name: platform-automation-tasks
+  type: s3
+  source:
+    regexp: platform-automation-tasks-(.*).zip
+    bucket: ((region))-((env_name))
+- name: platform-automation-image
+  type: google-cloud-storage
+  source:
+    regexp: platform-automation-image-(.*).tgz
+    bucket: ((region))-((env_name))
+- name: platform-automation
+  type: pivnet
+  source:
+    product_slug: platform-automation
+    api_token: ((pivnet_token))
+- name: controlplane-pipelines
+  type: git
+  source:
+    branch: master
+    uri: git@github.com:dashaun-cloud/controlplane-pipelines.git
+    private_key: ((git_ssh_key))
+- name: terraform
+  type: terraform
+  source:
+    env_name: ((env_name))
+    backend_type: s3
+    backend_config:
+      bucket: terraform-state-dashaun-cloud
+      prefix: ((env_name))
+      key: ((aws_access_key))
+      secret_access_key: ((aws_secret_key))
+      region: ((region))
+    delete_on_failure: true
+    vars:
+      region: ((region))
+      access_key: ((aws_access_key))
+      secret_key: ((aws_secret_key))
+#- name: pks-product
+#  type: google-cloud-storage
+#  source:
+#    regexp: pivotal-container-service-(.*).pivotal
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: pks-stemcell
+#  type: google-cloud-storage
+#  source:
+#    regexp: pks-stemcell/light-bosh-stemcell-(.*)-google.*\.tgz
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: harbor-product
+#  type: google-cloud-storage
+#  source:
+#    regexp: harbor-container-registry-(.*).pivotal
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: harbor-stemcell
+#  type: google-cloud-storage
+#  source:
+#    regexp: harbor-stemcell/light-bosh-stemcell-(.*)-google.*\.tgz
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: rabbitmq-product
+#  type: google-cloud-storage
+#  source:
+#    regexp: p-rabbitmq-(.*).pivotal
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: rabbitmq-stemcell
+#  type: google-cloud-storage
+#  source:
+#    regexp: rabbitmq-stemcell/light-bosh-stemcell-(.*)-google.*\.tgz
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: scs3-product
+#  type: google-cloud-storage
+#  source:
+#    regexp: p_spring-cloud-services-(.*).pivotal
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: scs3-stemcell
+#  type: google-cloud-storage
+#  source:
+#    regexp: scs3-stemcell/light-bosh-stemcell-(.*)-google.*\.tgz
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: redis-product
+#  type: google-cloud-storage
+#  source:
+#    regexp: p-redis-(.*).pivotal
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: redis-stemcell
+#  type: google-cloud-storage
+#  source:
+#    regexp: redis-stemcell/light-bosh-stemcell-(.*)-google.*\.tgz
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: pas-product
+#  type: google-cloud-storage
+#  source:
+#    regexp: srt-(.*).pivotal
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: pas-stemcell
+#  type: google-cloud-storage
+#  source:
+#    regexp: pas-stemcell/light-bosh-stemcell-(.*)-google.*\.tgz
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: healthwatch-product
+#  type: google-cloud-storage
+#  source:
+#    regexp: p-healthwatch-(.*).pivotal
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: healthwatch-stemcell
+#  type: google-cloud-storage
+#  source:
+#    regexp: healthwatch-stemcell/light-bosh-stemcell-(.*)-google.*\.tgz
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: mysql-product
+#  type: google-cloud-storage
+#  source:
+#    regexp: pivotal-mysql-(.*).pivotal
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: mysql-stemcell
+#  type: google-cloud-storage
+#  source:
+#    regexp: mysql-stemcell/light-bosh-stemcell-(.*)-google.*\.tgz
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: pcfmetrics-product
+#  type: google-cloud-storage
+#  source:
+#    regexp: apm-(.*).pivotal
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+#- name: pcfmetrics-stemcell
+#  type: google-cloud-storage
+#  source:
+#    regexp: pcfmetrics-stemcell/light-bosh-stemcell-(.*)-google.*\.tgz
+#    bucket: ((gcs-bucket))
+#    json_key: |
+#      ((gcp-credentials))
+      
+jobs:
+- name: terraform-plan
+  plan:
+  - get: controlplane-pipelines
+    trigger: false
+  - put: terraform
+    params:
+      env_name: ((env_name))
+      plan_only: true
+      terraform_source: controlplane-pipelines/platform-automation/gcp/
+- name: terraform-apply
+  plan:
+  - get: controlplane-pipelines
+    trigger: false
+  - put: terraform
+    params:
+      env_name: ((env_name))
+      terraform_source: controlplane-pipelines/platform-automation/gcp/
+- name: terraform-destroy
+  plan:
+  - get: controlplane-pipelines
+    trigger: false
+  - put: terraform
+    get_params:
+      action: destroy
+    params:
+      action: destroy
+      env_name: ((env_name))
+      terraform_source: controlplane-pipelines/platform-automation/gcp
+- name: fetch-platform-automation
+  plan:
+  - get: platform-automation
+    trigger: false
+  - in_parallel:
+    - put: platform-automation-tasks
+      params:
+        file: platform-automation/*tasks*.zip
+    - put: platform-automation-image
+      params:
+        file: platform-automation/*image*.tgz
