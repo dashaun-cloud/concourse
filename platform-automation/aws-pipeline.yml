@@ -18,7 +18,7 @@ resources:
     regexp: platform-automation-tasks-(.*).zip
     bucket: ((region))-((env_name))
 - name: platform-automation-image
-  type: google-cloud-storage
+  type: s3
   source:
     regexp: platform-automation-image-(.*).tgz
     bucket: ((region))-((env_name))
@@ -40,9 +40,9 @@ resources:
     backend_type: s3
     backend_config:
       bucket: terraform-state-dashaun-cloud
-      prefix: ((env_name))
-      key: ((aws_access_key))
-      secret_access_key: ((aws_secret_key))
+      key: ((env_name))
+      access_key: ((aws_access_key))
+      secret_key: ((aws_secret_key))
       region: ((region))
     delete_on_failure: true
     vars:
@@ -185,7 +185,7 @@ jobs:
     params:
       env_name: ((env_name))
       plan_only: true
-      terraform_source: controlplane-pipelines/platform-automation/gcp/
+      terraform_source: controlplane-pipelines/platform-automation/aws/
 - name: terraform-apply
   plan:
   - get: controlplane-pipelines
@@ -193,7 +193,7 @@ jobs:
   - put: terraform
     params:
       env_name: ((env_name))
-      terraform_source: controlplane-pipelines/platform-automation/gcp/
+      terraform_source: controlplane-pipelines/platform-automation/aws/
 - name: terraform-destroy
   plan:
   - get: controlplane-pipelines
@@ -204,7 +204,7 @@ jobs:
     params:
       action: destroy
       env_name: ((env_name))
-      terraform_source: controlplane-pipelines/platform-automation/gcp
+      terraform_source: controlplane-pipelines/platform-automation/aws
 - name: fetch-platform-automation
   plan:
   - get: platform-automation

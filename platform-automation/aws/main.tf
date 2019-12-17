@@ -1,7 +1,6 @@
 provider "aws" {
   version    = "~> 2.0"
   region     = var.region
-  env_name   = var.env_name
   access_key = var.access_key
   secret_key = var.secret_key
 }
