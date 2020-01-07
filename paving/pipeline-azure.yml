@@ -1,0 +1,67 @@
+resource_types:
+  - name: terraform
+    type: docker-image
+    source:
+      repository: ljfranklin/terraform-resource
+      tag: latest
+
+resources:
+  - name: paving
+    type: git
+    source:
+      branch: master
+      uri: git@github.com:pivotal/paving.git
+      private_key: ((git_ssh_key))
+
+  - name: terraform
+    type: terraform
+    source:
+      env_name: ((environment_name))
+      backend_type: azurerm
+      backend_config:
+        container_name: ((azure_terraform_container_name))
+        key: ((environment_name))
+        storage_account_name: ((azure_terraform_storage_account_name))
+        resource_group_name: ((azure_terraform_resource_group_name))
+        access_key: ((azure_access_key))
+      delete_on_failure: false
+      vars:
+        cf_storage_account_name: ((azure_terraform_storage_account_name))
+        environment_name: ((environment_name))
+        location: ((location))
+        subscription_id: ((azure_subscription_id))
+        tenant_id: ((azure_tenant_id))
+        client_id: ((azure_client_id))
+        client_secret: ((azure_client_secret))
+        dns_subdomain: ((environment_name))
+        dns_suffix: ((dns_suffix))
+        ops_manager_image_uri: ((ops_manager_image_uri))
+
+jobs:
+  - name: apply-show-output-destroy
+    plan:
+      - get: paving
+        trigger: true
+      - put: terraform
+        params:
+          env_name: ((environment_name))
+          terraform_source: paving/azure
+      - task: show-outputs
+        config:
+          platform: linux
+          inputs:
+            - name: terraform
+          run:
+            path: /bin/sh
+            args:
+              - -c
+              - |
+                echo "name: $(cat terraform/name)"
+                echo "metadata: $(cat terraform/metadata)"
+      - put: terraform
+        get_params:
+          action: destroy
+        params:
+          action: destroy
+          env_name: ((environment_name))
+          terraform_source: paving/azure

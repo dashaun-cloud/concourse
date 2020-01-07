@@ -1,9 +1,10 @@
-env_name: us-west-2
-region: us-west-2
+env_name: us-east-2
+region: us-east-2
 dns_suffix: aws.dashaun.cloud
 hosted_zone: aws.dashaun.cloud.
 availability_zones:
-- us-west-2c
-- us-west-2b
+- us-east-2c
+- us-east-2b
+ops_manager_ami: ""
 aws_terraform_bucket: terraform-state-dashaun-cloud
 aws_terraform_bucket_region: us-east-2

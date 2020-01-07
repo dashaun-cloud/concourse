@@ -1,9 +1,9 @@
-env_name: us-west-1
+env_name: paving-aws
 region: us-west-1
 dns_suffix: aws.dashaun.cloud
 hosted_zone: aws.dashaun.cloud.
 availability_zones:
-- us-west-1c
 - us-west-1b
+- us-west-1c
 aws_terraform_bucket: terraform-state-dashaun-cloud
 aws_terraform_bucket_region: us-east-2

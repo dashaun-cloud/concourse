@@ -1,0 +1,64 @@
+resource_types:
+  - name: terraform
+    type: docker-image
+    source:
+      repository: ljfranklin/terraform-resource
+      tag: latest
+
+resources:
+  - name: paving
+    type: git
+    source:
+      branch: master
+      uri: git@github.com:pivotal/paving.git
+      private_key: ((git_ssh_key))
+
+  - name: terraform
+    type: terraform
+    source:
+      env_name: ((environment_name))
+      backend_type: gcs
+      backend_config:
+        bucket: terraform-state-dashaun-cloud
+        prefix: ((environment_name))
+        credentials: ((gcp_credentials_json))
+      delete_on_failure: true
+      vars:
+        project: ((project))
+        environment_name: ((environment_name))
+        region: ((region))
+        dns_zone_name: ((dns_zone_name))
+        hosted_zone: ((hosted_zone))
+        availability_zones: ((availability_zones))
+        service_account_key: ((gcp_credentials_json))
+        ssl_certificate: ((ssl_certificate))
+        ssl_private_key: ((ssl_private_key))
+
+jobs:
+  - name: apply-show-output-destroy
+    plan:
+      - get: paving
+        trigger: true
+      - put: terraform
+        params:
+          env_name: ((environment_name))
+          terraform_source: paving/gcp
+      - task: show-outputs
+        config:
+          platform: linux
+          inputs:
+            - name: terraform
+          run:
+            path: /bin/sh
+            args:
+              - -c
+              - |
+                echo "name: $(cat terraform/name)"
+                echo "metadata: $(cat terraform/metadata)"
+      - put: terraform
+        get_params:
+          action: destroy
+        params:
+          action: destroy
+          env_name: ((environment_name))
+          terraform_source: paving/gcp

@@ -1,0 +1,67 @@
+# fly -t cp login -n main
+# fly -t cp set-pipeline -c pipeline.yml -p aws-us-east-2 -l us-east-2.yml -n
+---
+resource_types:
+  - name: terraform
+    type: docker-image
+    source:
+      repository: ljfranklin/terraform-resource
+      tag: latest
+resources:
+  - name: paving-pas
+    type: git
+    source:
+      branch: master
+      uri: git@github.com:pivotal/paving-pas.git
+      private_key: ((git_ssh_key))
+
+  - name: terraform-aws
+    type: terraform
+    source:
+      env_name: ((env_name))
+      backend_type: s3
+      backend_config:
+        bucket: ((aws_terraform_bucket))
+        key: terraform.tfstate
+        region: ((aws_terraform_bucket_region))
+        access_key: ((aws_access_key))
+        secret_key: ((aws_secret_key))
+      delete_on_failure: true
+      vars:
+        env_name: ((env_name))
+        region: ((region))
+        dns_suffix: ((dns_suffix))
+        hosted_zone: ((hosted_zone))
+        availability_zones: ((availability_zones))
+        access_key: ((aws_access_key))
+        secret_key: ((aws_secret_key))
+        ops_manager_ami: ((ops_manager_ami))
+
+jobs:
+  - name: terraform-plan
+    plan:
+    - get: paving-pas
+      trigger: false
+    - put: terraform-aws
+      params:
+        env_name: ((env_name))
+        terraform_source: paving-pas/aws/examples/open-network
+  - name: terraform-apply
+    plan:
+    - get: paving-pas
+      trigger: false
+    - put: terraform-aws
+      params:
+        env_name: ((env_name))
+        terraform_source: paving-pas/aws/examples/open-network
+  - name: terraform-destroy
+    plan:
+    - get: paving-pas
+      trigger: false
+    - put: terraform-aws
+      get_params:
+        action: destroy
+      params:
+        action: destroy
+        env_name: ((env_name))
+        terraform_source: paving-pas/aws/examples/open-network
