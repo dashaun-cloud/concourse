@@ -34,7 +34,7 @@ resources:
         client_id: ((azure_client_id))
         client_secret: ((azure_client_secret))
         dns_subdomain: ((environment_name))
-        dns_suffix: ((dns_suffix))
+        hosted_zone: ((hosted_zone))
         ops_manager_image_uri: ((ops_manager_image_uri))
 
 jobs:
