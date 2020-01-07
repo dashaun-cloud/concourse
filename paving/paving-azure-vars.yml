@@ -1,4 +1,4 @@
 environment_name: paving-azure
 location: centralus
-dns_suffix: azure.dashaun.cloud
+hosted_zone: azure.dashaun.cloud
 ops_manager_image_uri: ""
