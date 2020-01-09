@@ -26,7 +26,6 @@ resources:
         access_key: ((azure_access_key))
       delete_on_failure: false
       vars:
-        cf_storage_account_name: ((azure_terraform_storage_account_name))
         environment_name: ((environment_name))
         location: ((location))
         subscription_id: ((azure_subscription_id))
