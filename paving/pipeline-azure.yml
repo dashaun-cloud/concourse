@@ -32,7 +32,6 @@ resources:
         tenant_id: ((azure_tenant_id))
         client_id: ((azure_client_id))
         client_secret: ((azure_client_secret))
-        dns_subdomain: ((environment_name))
         hosted_zone: ((hosted_zone))
         ops_manager_image_uri: ((ops_manager_image_uri))
 
