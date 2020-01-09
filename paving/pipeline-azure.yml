@@ -33,7 +33,6 @@ resources:
         client_id: ((azure_client_id))
         client_secret: ((azure_client_secret))
         hosted_zone: ((hosted_zone))
-        ops_manager_image_uri: ((ops_manager_image_uri))
 
 jobs:
   - name: apply-show-output-destroy
