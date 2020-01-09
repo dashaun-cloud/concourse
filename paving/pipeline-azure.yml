@@ -39,6 +39,7 @@ resources:
 
 jobs:
   - name: apply-show-output-destroy
+    serial: true
     plan:
       - get: paving
         trigger: true
