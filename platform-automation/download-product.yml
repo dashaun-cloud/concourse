@@ -1,0 +1,11 @@
+---
+pivnet-api-token: token
+pivnet-file-glob: "*.pivotal"
+pivnet-product-slug: product-slug
+
+# Either product-version OR product-version-regex is required
+product-version-regex: ^\d+\.\d+\.\d+ # must not be quoted
+# product-version: 1.2.3
+
+stemcell-iaas: google
+blobstore-bucket: ((project))-((env_name))

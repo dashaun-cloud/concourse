@@ -1,0 +1,7 @@
+# PAS
+product-version-regex: ^\d+\.\d+\.\d+
+pivnet-product-slug: elastic-runtime
+pivnet-api-token: ((pivnet_token))
+pivnet-file-glob: "srt-*.pivotal"
+stemcell-iaas: google
+blobstore-bucket: ((project))-((env_name))
